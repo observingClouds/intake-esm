@@ -138,6 +138,14 @@ def test_query_model(query, columns, require_all_on):
     assert set(q.query.keys()) == set(query.keys())
 
 
+@pytest.mark.parameterize('query', [({'variable': 'FLNS'})])
+def test_cat_search(query):
+    cat = ESMCatalogModel.from_dict({'esmcat': sample_esmcat_data, 'df': sample_df})
+    result_kwargs = cat.search(**query)
+    result_query = cat.search(query=query)
+    assert results_kwargs == result_query
+
+
 @pytest.mark.parametrize(
     'query, columns, require_all_on',
     [({'testing': 1}, ['foo', 'bar'], ['bar']), ({'bar': 1}, ['foo', 'bar'], 'testing')],
