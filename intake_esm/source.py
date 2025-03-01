@@ -104,6 +104,8 @@ def _open_dataset(
         ds.attrs[OPTIONS['vars_key']] = variables
     elif varname:
         ds.attrs[OPTIONS['vars_key']] = varname
+    else:
+        ds.attrs[OPTIONS['vars_key']] = []
 
     ds = _expand_dims(expand_dims, ds)
     ds = _update_attrs(additional_attrs=additional_attrs, ds=ds)
