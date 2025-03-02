@@ -668,7 +668,17 @@ class esm_datastore(Catalog):
             print(
                 f"""\n--> The keys in the returned dictionary of datasets are constructed as follows:\n\t'{self.key_template}'"""
             )
-        sources = {key: source(**source_kwargs) for key, source in self.items()}
+        sources = {}
+        if source_kwargs.get('xarray_open_kwargs', {}).get('backend_kwargs', {}).get('storage_options',{}).get('template_overrides',{}).get('root', {}):
+            pass
+        else:
+            source_kwargs['xarray_open_kwargs']['backend_kwargs']['storage_options'].update({'template_overrides': {'root': None}})
+        selected_store = source_kwargs.get('xarray_open_kwargs', {}).get('backend_kwargs', {}).get('storage_options',{}).get('store', None)
+        for key, source in self.items():
+            skwargs = deepcopy(source_kwargs)
+            if selected_store is not None:
+                skwargs['xarray_open_kwargs']['backend_kwargs']['storage_options']['template_overrides']['root'] = source.df['stores'][0][selected_store]
+            sources[key] = source(**skwargs)
         datasets = {}
         with concurrent.futures.ThreadPoolExecutor(max_workers=dask.system.CPU_COUNT) as executor:
             future_tasks = [
